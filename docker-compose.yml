@@ -10,3 +10,7 @@ services:
       - "./app:/app"
     command: >
       sh -c "python manage.py runserver 0.0.0.0:8000"
+    environment:
+      - SECRET_KEY=${DJANGO_SECRET_KEY}
+      - ALLOWED_HOSTS=${DJANGO_ALLOWED_HOSTS}
+      - DEBUG=${DEBUG}
