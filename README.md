@@ -1,2 +1,3 @@
-## Form Submission API
-Backend for storing and managing data that comes from submission forms from static websites.
+# Form Submission RestAPI
+
+### Store and manage messages from submission forms
