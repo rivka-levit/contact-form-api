@@ -10,8 +10,8 @@ from rest_framework import status
 from rest_framework.test import APIClient
 
 CREATE_USER_URL = reverse('user:create')
-PROFILE_URL = reverse('user:profile')
-TOKEN_URL = reverse('user:token')
+# PROFILE_URL = reverse('user:profile')
+# TOKEN_URL = reverse('user:token')
 
 
 def create_user(**params):
@@ -33,7 +33,7 @@ class PublicUserApiTests(TestCase):
             'email': 'test@example.com',
             'password': 'test_pass12345'
         }
-        r = self.client.get(CREATE_USER_URL, payload)
+        r = self.client.post(CREATE_USER_URL, payload)
 
         self.assertEqual(r.status_code, status.HTTP_201_CREATED)
         exists = get_user_model().objects.filter(
@@ -45,7 +45,7 @@ class PublicUserApiTests(TestCase):
         """Test creating a user without email fails."""
 
         payload = {'email': '', 'password': 'test_pass12345'}
-        r = self.client.get(CREATE_USER_URL, payload)
+        r = self.client.post(CREATE_USER_URL, payload)
 
         self.assertEqual(r.status_code, status.HTTP_400_BAD_REQUEST)
 
@@ -58,7 +58,7 @@ class PublicUserApiTests(TestCase):
             'email': 'test@example.com',
             'password': 'test_pass12345'
         }
-        r = self.client.get(CREATE_USER_URL, payload)
+        r = self.client.post(CREATE_USER_URL, payload)
 
         self.assertEqual(r.status_code, status.HTTP_400_BAD_REQUEST)
 
@@ -69,7 +69,7 @@ class PublicUserApiTests(TestCase):
             'email': 'test_pass@example.com',
             'password': 't_p12'
         }
-        r = self.client.get(CREATE_USER_URL, payload)
+        r = self.client.post(CREATE_USER_URL, payload)
 
         self.assertEqual(r.status_code, status.HTTP_400_BAD_REQUEST)
         exists = get_user_model().objects.filter(
