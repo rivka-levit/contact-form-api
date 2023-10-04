@@ -243,3 +243,4 @@ fabric.properties
 /.idea/vcs.xml
 /.idea/form-submission-api.iml
 /.idea/inspectionProfiles/Project_Default.xml
+/app/schema.json
