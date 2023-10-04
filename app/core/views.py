@@ -1,3 +1,12 @@
-from django.shortcuts import render
+"""
+Views for endpoints that don't belong to any app.
+"""
 
-# Create your views here.
+from django.views.generic import TemplateView
+
+
+class IndexView(TemplateView):
+    """View for index page."""
+
+    template_name = 'index.html'
+
