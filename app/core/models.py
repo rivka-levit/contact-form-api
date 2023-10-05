@@ -55,8 +55,3 @@ class User(AbstractBaseUser, PermissionsMixin):
 
     def __str__(self):
         return self.email
-
-    def save(self, *args, **kwargs):
-        if not self.name:
-            self.name = self.email.split('@')[0]
-            return super(User, self).save(*args, **kwargs)
