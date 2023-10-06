@@ -21,6 +21,7 @@ class MessageDetailSerializer(MessageSerializer):
 
     class Meta(MessageSerializer.Meta):
         fields = [
+            'id',
             'email',
             'name',
             'title',
@@ -31,4 +32,4 @@ class MessageDetailSerializer(MessageSerializer):
             'is_banned',
             'created_at'
         ]
-        read_only_fields = ['created_at']
+        read_only_fields = ['id', 'created_at']

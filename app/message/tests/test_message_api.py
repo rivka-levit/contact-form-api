@@ -90,7 +90,7 @@ class PrivateMessageApiTests(TestCase):
             'title': 'my super important question',
             'content': 'My very clear explanations.'
         }
-        r = self.client.get(MESSAGES_URL, payload)
+        r = self.client.post(MESSAGES_URL, payload)
 
         self.assertEqual(r.status_code, status.HTTP_201_CREATED)
 
