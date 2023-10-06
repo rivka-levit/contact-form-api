@@ -52,14 +52,14 @@ class PublicMessageApiTests(TestCase):
     def setUp(self):
         self.client = APIClient()
 
-    def test_retrieve_list_unauthorized_fails(self):
+    def test_retrieve_list_unauthorized_error(self):
         """
         Test retrieving the list of messages fails for an unauthorized user.
         """
 
         r = self.client.get(MESSAGES_URL)
 
-        self.assertEqual(r.status_code, status.HTTP_401_UNAUTHORIZED)
+        self.assertEqual(r.status_code, status.HTTP_403_FORBIDDEN)
 
 
 class PrivateMessageApiTests(TestCase):
