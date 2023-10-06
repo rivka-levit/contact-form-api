@@ -1,4 +1,5 @@
 from django.db import models
+from django.conf import settings
 from django.contrib.auth.models import (
     AbstractBaseUser,
     BaseUserManager,
@@ -55,3 +56,27 @@ class User(AbstractBaseUser, PermissionsMixin):
 
     def __str__(self):
         return self.email
+
+
+class Message(models.Model):
+    """Message object."""
+
+    user = models.ForeignKey(
+        to=settings.AUTH_USER_MODEL,
+        on_delete=models.CASCADE,
+        related_name='messages'
+    )
+    email = models.EmailField()
+    name = models.CharField(max_length=100, null=True, blank=True)
+    title = models.CharField(max_length=255, null=True, blank=True)
+    content = models.TextField(max_length=1000)
+    is_recent = models.BooleanField(default=True)
+    is_read = models.BooleanField(default=False)
+    is_answered = models.BooleanField(default=False)
+    is_banned = models.BooleanField(default=False)
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    def __str__(self):
+        """Return string representation of an object."""
+
+        return f'Message from: {self.email}'

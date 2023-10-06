@@ -5,6 +5,8 @@ Tests for models.
 from django.test import TestCase
 from django.contrib.auth import get_user_model
 
+from core.models import Message
+
 
 def create_user(**params):
     """Create and return a new user."""
@@ -67,3 +69,21 @@ class ModelTests(TestCase):
         )
         self.assertTrue(user.is_superuser)
         self.assertTrue(user.is_staff)
+
+    def test_create_message_success(self):
+        """Test creating a message is successful."""
+
+        user = create_user(email='test_message@example.com')
+        data = {
+            'name': 'Sample Name',
+            'title': 'Sample title for message',
+            'content': 'Full content of the message.'
+        }
+        msg = Message.objects.create(user=user, **data)
+
+        self.assertTrue(Message.objects.filter(id=msg.id).exists())
+        for attr, value in data.items():
+            self.assertEqual(getattr(msg, attr), value)
+        self.assertTrue(msg.is_recent)
+        self.assertFalse(msg.is_read)
+        self.assertFalse(msg.is_answered)
