@@ -26,7 +26,7 @@ from core.permissions import AccessOwnerOnly
 class MessageViewSet(ModelViewSet):
     """View for managing message APIs."""
 
-    queryset = Message.objects.filter(is_banned=False)
+    queryset = Message.objects.all()
     serializer_class = MessageDetailSerializer
     permission_classes = [IsAuthenticated, AccessOwnerOnly]
 
@@ -42,3 +42,10 @@ class MessageViewSet(ModelViewSet):
             return MessageSerializer
 
         return self.serializer_class
+
+    def get_queryset(self):
+        """Filter and return queryset of messages."""
+
+        queryset = super().get_queryset().filter(user=self.request.user)
+
+        return queryset

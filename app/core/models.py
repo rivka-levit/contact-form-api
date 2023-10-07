@@ -73,7 +73,6 @@ class Message(models.Model):
     is_recent = models.BooleanField(default=True)
     is_read = models.BooleanField(default=False)
     is_answered = models.BooleanField(default=False)
-    is_banned = models.BooleanField(default=False)
     created_at = models.DateTimeField(auto_now_add=True)
 
     def __str__(self):

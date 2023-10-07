@@ -29,7 +29,6 @@ class MessageDetailSerializer(MessageSerializer):
             'is_recent',
             'is_read',
             'is_answered',
-            'is_banned',
             'created_at'
         ]
         read_only_fields = ['id', 'created_at']

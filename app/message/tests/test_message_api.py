@@ -100,14 +100,13 @@ class PrivateMessageApiTests(TestCase):
         for k, v in payload.items():
             self.assertEqual(r.data[k], v)
 
-        booleans = (
+        auto_fields = (
             'is_recent',
             'is_read',
             'is_answered',
-            'is_banned',
             'created_at'
         )
-        for attr in booleans:
+        for attr in auto_fields:
             self.assertIn(attr, r.data)
 
     def test_update_message_success(self):
