@@ -6,7 +6,7 @@ from django.contrib import admin
 from django.contrib.auth.admin import UserAdmin as BaseUserAdmin
 from django.utils.translation import gettext_lazy as _
 
-from core.models import User
+from core.models import User, Message
 
 
 @admin.register(User)
@@ -45,3 +45,15 @@ class UserAdmin(BaseUserAdmin):
             ),
         }),
     )
+
+
+@admin.register(Message)
+class MessageAdmin(admin.ModelAdmin):
+    ordering = ['-created_at']
+    list_display = [
+        'email',
+        'title',
+    ]
+    readonly_fields = ['created_at']
+    list_filter = ['is_recent', 'is_read', 'is_answered']
+    list_per_page = 20
