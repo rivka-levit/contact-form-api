@@ -193,3 +193,20 @@ class PrivateMessageApiTests(TestCase):
 
         self.assertEqual(r.status_code, status.HTTP_200_OK)
         self.assertEqual(len(r.data), 2)
+
+    def test_filtering_messages_by_search_string(self):
+        """
+        Test filtering the list of messages by the string passed in 'search'
+        parameter.
+        """
+
+        create_msg(self.user)
+        create_msg(self.user, title='first message with problem')
+        create_msg(self.user, content='second message with Problem')
+
+        param = {'search': 'problem'}
+
+        r = self.client.get(MESSAGES_URL, param)
+
+        self.assertEqual(r.status_code, status.HTTP_200_OK)
+        self.assertEqual(len(r.data), 2)
