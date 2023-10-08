@@ -134,3 +134,102 @@ class PrivateMessageApiTests(TestCase):
         r = self.client.delete(detail_url(msg.id))
 
         self.assertEqual(r.status_code, status.HTTP_204_NO_CONTENT)
+
+    def test_filtering_by_recent(self):
+        """Test retrieving list of messages, filtering just recent."""
+
+        create_msg(self.user)
+        create_msg(self.user)
+        create_msg(self.user, is_recent=False)
+
+        params = {'filter': 'recent'}
+
+        r = self.client.get(MESSAGES_URL, params)
+
+        self.assertEqual(r.status_code, status.HTTP_200_OK)
+        self.assertEqual(len(r.data), 2)
+
+    def test_filtering_by_read(self):
+        """
+        Test retrieving messages and filtering them by 'is_read' parameter.
+        """
+
+        create_msg(self.user)
+        create_msg(self.user)
+        create_msg(self.user, is_recent=False, is_read=True)
+
+        params = {'filter': 'read'}
+
+        r = self.client.get(MESSAGES_URL, params)
+
+        self.assertEqual(r.status_code, status.HTTP_200_OK)
+        self.assertEqual(len(r.data), 1)
+
+    def test_filtering_by_answered(self):
+        """
+        Test retrieving messages and filtering them by 'is_answered' parameter.
+        """
+
+        create_msg(self.user)
+        create_msg(self.user, is_read=True, is_answered=True)
+
+        params = {'filter': 'answered'}
+
+        r = self.client.get(MESSAGES_URL, params)
+
+        self.assertEqual(r.status_code, status.HTTP_200_OK)
+        self.assertEqual(len(r.data), 1)
+
+    def test_filtering_by_several_parameters(self):
+        """Test filtering list of messages by several parameters."""
+
+        create_msg(self.user)
+        create_msg(self.user, is_recent=False, is_answered=True)
+        create_msg(self.user, is_recent=False, is_read=True)
+
+        params = {'filter': 'recent,read'}
+
+        r = self.client.get(MESSAGES_URL, params)
+
+        self.assertEqual(r.status_code, status.HTTP_200_OK)
+        self.assertEqual(len(r.data), 2)
+
+    def test_filtering_messages_by_search_string(self):
+        """
+        Test filtering the list of messages by the string passed in 'search'
+        parameter.
+        """
+
+        create_msg(self.user)
+        create_msg(self.user, title='first message with problem')
+        create_msg(self.user, content='second message with Problem',)
+
+        params = {'search': 'problem'}
+
+        r = self.client.get(MESSAGES_URL, params)
+
+        self.assertEqual(r.status_code, status.HTTP_200_OK)
+        self.assertEqual(len(r.data), 2)
+
+    def test_filtering_messages_combine_search_filter(self):
+        """
+        Test filtering the list of messages by both 'search' and 'filter'
+        parameter.
+        """
+
+        create_msg(self.user)
+        create_msg(self.user, is_recent=False, is_answered=True)
+        create_msg(self.user, title='first message with problem')
+        create_msg(
+            self.user,
+            content='second message with Problem',
+            is_recent=False,
+            is_answered=True
+        )
+
+        params = {'search': 'problem', 'filter': 'answered'}
+
+        r = self.client.get(MESSAGES_URL, params)
+
+        self.assertEqual(r.status_code, status.HTTP_200_OK)
+        self.assertEqual(len(r.data), 1)
