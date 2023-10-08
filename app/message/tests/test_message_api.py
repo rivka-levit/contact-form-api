@@ -164,3 +164,32 @@ class PrivateMessageApiTests(TestCase):
 
         self.assertEqual(r.status_code, status.HTTP_200_OK)
         self.assertEqual(len(r.data), 1)
+
+    def test_filtering_by_answered(self):
+        """
+        Test retrieving messages and filtering them by 'is_answered' parameter.
+        """
+
+        create_msg(self.user)
+        create_msg(self.user, is_read=True, is_answered=True)
+
+        params = {'filter': 'answered'}
+
+        r = self.client.get(MESSAGES_URL, params)
+
+        self.assertEqual(r.status_code, status.HTTP_200_OK)
+        self.assertEqual(len(r.data), 1)
+
+    def test_filtering_by_several_parameters(self):
+        """Test filtering list of messages by several parameters."""
+
+        create_msg(self.user)
+        create_msg(self.user, is_recent=False, is_answered=True)
+        create_msg(self.user, is_recent=False, is_read=True)
+
+        params = {'filter': 'recent,read'}
+
+        r = self.client.get(MESSAGES_URL, params)
+
+        self.assertEqual(r.status_code, status.HTTP_200_OK)
+        self.assertEqual(len(r.data), 2)

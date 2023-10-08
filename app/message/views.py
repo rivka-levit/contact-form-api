@@ -48,13 +48,19 @@ class MessageViewSet(ModelViewSet):
 
         queryset = super().get_queryset().filter(user=self.request.user)
         params = self.request.query_params.get('filter')
+
         if params:
             params = params.split(',')
+            qs_filtered = queryset.none()
 
             for param in params:
                 if param == 'recent':
-                    queryset = queryset.filter(is_recent=True)
+                    qs_filtered = qs_filtered.union(queryset.filter(is_recent=True))
                 if param == 'read':
-                    queryset = queryset.filter(is_read=True)
+                    qs_filtered = qs_filtered.union(queryset.filter(is_read=True))
+                if param == 'answered':
+                    qs_filtered = qs_filtered.union(queryset.filter(is_answered=True))
+
+            queryset = qs_filtered
 
         return queryset
