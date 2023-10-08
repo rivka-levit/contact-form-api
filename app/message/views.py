@@ -54,5 +54,7 @@ class MessageViewSet(ModelViewSet):
             for param in params:
                 if param == 'recent':
                     queryset = queryset.filter(is_recent=True)
+                if param == 'read':
+                    queryset = queryset.filter(is_read=True)
 
         return queryset
