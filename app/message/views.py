@@ -47,5 +47,12 @@ class MessageViewSet(ModelViewSet):
         """Filter and return queryset of messages."""
 
         queryset = super().get_queryset().filter(user=self.request.user)
+        params = self.request.query_params.get('filter')
+        if params:
+            params = params.split(',')
+
+            for param in params:
+                if param == 'recent':
+                    queryset = queryset.filter(is_recent=True)
 
         return queryset
