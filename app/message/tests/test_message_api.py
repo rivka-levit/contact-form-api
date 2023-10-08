@@ -134,3 +134,17 @@ class PrivateMessageApiTests(TestCase):
         r = self.client.delete(detail_url(msg.id))
 
         self.assertEqual(r.status_code, status.HTTP_204_NO_CONTENT)
+
+    def test_filtering_by_recent(self):
+        """Test retrieving list of messages, filtering just recent."""
+
+        create_msg(self.user)
+        create_msg(self.user)
+        create_msg(self.user, is_recent=False)
+
+        params = {'filter': 'recent'}
+
+        r = self.client.get(MESSAGES_URL, params)
+
+        self.assertEqual(r.status_code, status.HTTP_200_OK)
+        self.assertEqual(len(r.data), 2)
