@@ -202,11 +202,34 @@ class PrivateMessageApiTests(TestCase):
 
         create_msg(self.user)
         create_msg(self.user, title='first message with problem')
-        create_msg(self.user, content='second message with Problem')
+        create_msg(self.user, content='second message with Problem',)
 
-        param = {'search': 'problem'}
+        params = {'search': 'problem'}
 
-        r = self.client.get(MESSAGES_URL, param)
+        r = self.client.get(MESSAGES_URL, params)
 
         self.assertEqual(r.status_code, status.HTTP_200_OK)
         self.assertEqual(len(r.data), 2)
+
+    def test_filtering_messages_combine_search_filter(self):
+        """
+        Test filtering the list of messages by both 'search' and 'filter'
+        parameter.
+        """
+
+        create_msg(self.user)
+        create_msg(self.user, is_recent=False, is_answered=True)
+        create_msg(self.user, title='first message with problem')
+        create_msg(
+            self.user,
+            content='second message with Problem',
+            is_recent=False,
+            is_answered=True
+        )
+
+        params = {'search': 'problem', 'filter': 'answered'}
+
+        r = self.client.get(MESSAGES_URL, params)
+
+        self.assertEqual(r.status_code, status.HTTP_200_OK)
+        self.assertEqual(len(r.data), 1)

@@ -1,3 +1,5 @@
+from django.db.models import Q
+
 from rest_framework.viewsets import ModelViewSet
 from rest_framework.permissions import IsAuthenticated
 
@@ -47,13 +49,14 @@ class MessageViewSet(ModelViewSet):
         """Filter and return queryset of messages."""
 
         queryset = super().get_queryset().filter(user=self.request.user)
-        params = self.request.query_params.get('filter')
+        filter_params = self.request.query_params.get('filter')
+        search = self.request.query_params.get('search')
 
-        if params:
-            params = params.split(',')
+        if filter_params:
+            filter_params = filter_params.split(',')
             qs_filtered = queryset.none()
 
-            for param in params:
+            for param in filter_params:
                 if param == 'recent':
                     qs_filtered = qs_filtered.union(queryset.filter(is_recent=True))
                 if param == 'read':
@@ -62,5 +65,11 @@ class MessageViewSet(ModelViewSet):
                     qs_filtered = qs_filtered.union(queryset.filter(is_answered=True))
 
             queryset = qs_filtered
+
+        if search:
+            queryset = queryset.filter(
+                Q(title__icontains=search) |
+                Q(content__icontains=search)
+            )
 
         return queryset
