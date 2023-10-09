@@ -18,7 +18,23 @@ from core.permissions import AccessOwnerOnly
 
 @extend_schema_view(
     list=extend_schema(
-        description='List of all the messages that are not in ban.'
+        description='List of all the messages that are not in ban.',
+        parameters=[
+            OpenApiParameter(
+                'filter',
+                OpenApiTypes.STR,
+                required=False,
+                description='One up to three parameters: "recent", "read", '
+                            '"answered", separated by comma.'
+            ),
+            OpenApiParameter(
+                'search',
+                OpenApiTypes.STR,
+                required=False,
+                description='Any string for searching it in the title and the '
+                            'content of messages.'
+            )
+        ]
     ),
     create=extend_schema(description='Create a new message in the system.'),
     update=extend_schema(description='Full update of a message.'),
@@ -64,7 +80,7 @@ class MessageViewSet(ModelViewSet):
                 if param == 'answered':
                     qs_filtered = qs_filtered.union(queryset.filter(is_answered=True))
 
-            queryset = qs_filtered
+            queryset = qs_filtered if qs_filtered else queryset
 
         if search:
             queryset = queryset.filter(
