@@ -15,6 +15,9 @@ from message.serializers import MessageSerializer, MessageDetailSerializer
 from core.models import Message
 from core.permissions import AccessOwnerOnly
 
+from datetime import date, datetime
+import pytz
+
 
 @extend_schema_view(
     list=extend_schema(
@@ -24,16 +27,30 @@ from core.permissions import AccessOwnerOnly
                 'filter',
                 OpenApiTypes.STR,
                 required=False,
-                description='One up to three parameters: "recent", "read", '
-                            '"answered", separated by comma.'
+                description='Filter messages by one up to three parameters: '
+                            '"recent", "read", "answered", separated by comma.'
             ),
             OpenApiParameter(
                 'search',
                 OpenApiTypes.STR,
                 required=False,
-                description='Any string for searching it in the title and the '
-                            'content of messages.'
-            )
+                description='Filter messages by any string for searching it in'
+                            ' the title and the content of messages.'
+            ),
+            OpenApiParameter(
+                'fd',
+                OpenApiTypes.STR,
+                required=False,
+                description='Filter messages, starting from the indicated date '
+                            'of creation (e.g. "2023-10-09" without quotes).'
+            ),
+            OpenApiParameter(
+                'td',
+                OpenApiTypes.STR,
+                required=False,
+                description='Filter messages up to the indicated date of '
+                            'creation (e.g. "2023-10-09" without quotes).'
+            ),
         ]
     ),
     create=extend_schema(description='Create a new message in the system.'),
@@ -65,8 +82,10 @@ class MessageViewSet(ModelViewSet):
         """Filter and return queryset of messages."""
 
         queryset = super().get_queryset().filter(user=self.request.user)
-        filter_params = self.request.query_params.get('filter')
-        search = self.request.query_params.get('search')
+        filter_params = self.request.query_params.get('filter', None)
+        search = self.request.query_params.get('search', None)
+        fd = self.request.query_params.get('fd', None)
+        td = self.request.query_params.get('td', None)
 
         if filter_params:
             filter_params = filter_params.split(',')
@@ -80,12 +99,24 @@ class MessageViewSet(ModelViewSet):
                 if param == 'answered':
                     qs_filtered = qs_filtered.union(queryset.filter(is_answered=True))
 
-            queryset = qs_filtered if qs_filtered else queryset
+            queryset = qs_filtered
 
         if search:
             queryset = queryset.filter(
                 Q(title__icontains=search) |
                 Q(content__icontains=search)
             )
+
+        if fd:
+            yy, mm, dd = map(int, fd.split('-'))
+            from_date = datetime(yy, mm, dd, 0, 0, 0, tzinfo=pytz.utc)
+
+            queryset = queryset.filter(created_at__gte=from_date)
+
+        if td:
+            yy, mm, dd = map(int, td.split('-'))
+            to_date = datetime(yy, mm, dd, 0, 0, 0, tzinfo=pytz.utc)
+
+            queryset = queryset.filter(created_at__lt=to_date)
 
         return queryset

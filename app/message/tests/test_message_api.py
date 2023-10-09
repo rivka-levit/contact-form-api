@@ -11,6 +11,14 @@ from rest_framework.test import APIClient
 
 from core.models import Message
 
+from message.serializers import MessageSerializer
+
+from datetime import datetime
+import pytz
+
+from unittest.mock import patch, Mock
+
+
 MESSAGES_URL = reverse('message-list')
 
 
@@ -233,3 +241,67 @@ class PrivateMessageApiTests(TestCase):
 
         self.assertEqual(r.status_code, status.HTTP_200_OK)
         self.assertEqual(len(r.data), 1)
+
+
+class FilterByDateTests(TestCase):
+    """Tests for filtering messages by date."""
+
+    def setUp(self):
+        self.client = APIClient()
+        self.user = create_user(email='test_message@example.com')
+        self.client.force_authenticate(self.user)
+
+        mocked_1 = datetime(2023, 9, 28, 0, 0, 0, tzinfo=pytz.utc)
+        with patch('django.utils.timezone.now', Mock(return_value=mocked_1)):
+            self.msg_1 = create_msg(self.user)
+
+        mocked_2 = datetime(2023, 10, 4, 0, 0, 0, tzinfo=pytz.utc)
+        with patch('django.utils.timezone.now', Mock(return_value=mocked_2)):
+            self.msg_2 = create_msg(self.user)
+
+        mocked_2 = datetime(2023, 10, 9, 0, 0, 0, tzinfo=pytz.utc)
+        with patch('django.utils.timezone.now', Mock(return_value=mocked_2)):
+            self.msg_3 = create_msg(self.user)
+
+    def test_filtering_messages_from_date(self):
+        """Test filtering messages from the date passed in the parameter."""
+
+        fd = '2023-10-04'
+
+        r = self.client.get(MESSAGES_URL, {'fd': fd})
+
+        self.assertEqual(r.status_code, status.HTTP_200_OK)
+        self.assertEqual(len(r.data), 2)
+
+        s1 = MessageSerializer(self.msg_1)
+        s3 = MessageSerializer(self.msg_3)
+
+        self.assertIn(s3.data, r.data)
+        self.assertNotIn(s1.data, r.data)
+
+    def test_filtering_messages_to_date(self):
+        """Test filtering messages up to the date passed in the parameter."""
+
+        td = '2023-10-04'
+
+        r = self.client.get(MESSAGES_URL, {'td': td})
+
+        self.assertEqual(r.status_code, status.HTTP_200_OK)
+        self.assertEqual(len(r.data), 1)
+
+        s1 = MessageSerializer(self.msg_1)
+        self.assertIn(s1.data, r.data)
+
+    def test_filtering_messages_from_date_to_date(self):
+        """Test filtering when two dates passed in the parameters."""
+
+        fd = '2023-10-04'
+        td = '2023-10-09'
+
+        r = self.client.get(MESSAGES_URL, {'fd': fd, 'td': td})
+
+        self.assertEqual(r.status_code, status.HTTP_200_OK)
+        self.assertEqual(len(r.data), 1)
+
+        s2 = MessageSerializer(self.msg_2)
+        self.assertIn(s2.data, r.data)
