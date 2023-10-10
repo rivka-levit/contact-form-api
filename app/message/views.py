@@ -28,14 +28,15 @@ import pytz
                 OpenApiTypes.STR,
                 required=False,
                 description='Filter messages by one up to three parameters: '
-                            '"recent", "read", "answered", separated by comma.'
+                            '"recent", "read", "answered", separated by comma '
+                            '(e.g. "recent,read" without quotes).'
             ),
             OpenApiParameter(
                 'search',
                 OpenApiTypes.STR,
                 required=False,
                 description='Filter messages by any string for searching it in'
-                            ' the title and the content of messages.'
+                            ' the title, content and email fields of messages.'
             ),
             OpenApiParameter(
                 'fd',
