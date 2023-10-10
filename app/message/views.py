@@ -15,7 +15,7 @@ from message.serializers import MessageSerializer, MessageDetailSerializer
 from core.models import Message
 from core.permissions import AccessOwnerOnly
 
-from datetime import date, datetime
+from datetime import datetime
 import pytz
 
 
@@ -103,19 +103,20 @@ class MessageViewSet(ModelViewSet):
 
         if search:
             queryset = queryset.filter(
+                Q(email__icontains=search) |
                 Q(title__icontains=search) |
                 Q(content__icontains=search)
             )
 
         if fd:
-            yy, mm, dd = map(int, fd.split('-'))
-            from_date = datetime(yy, mm, dd, 0, 0, 0, tzinfo=pytz.utc)
+            y, m, d = map(int, fd.split('-'))
+            from_date = datetime(y, m, d, 0, 0, 0, tzinfo=pytz.utc)
 
             queryset = queryset.filter(created_at__gte=from_date)
 
         if td:
-            yy, mm, dd = map(int, td.split('-'))
-            to_date = datetime(yy, mm, dd, 0, 0, 0, tzinfo=pytz.utc)
+            y, m, d = map(int, td.split('-'))
+            to_date = datetime(y, m, d, 0, 0, 0, tzinfo=pytz.utc)
 
             queryset = queryset.filter(created_at__lt=to_date)
 

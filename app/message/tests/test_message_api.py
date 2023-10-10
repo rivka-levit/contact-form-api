@@ -219,6 +219,21 @@ class PrivateMessageApiTests(TestCase):
         self.assertEqual(r.status_code, status.HTTP_200_OK)
         self.assertEqual(len(r.data), 2)
 
+    def test_searching_messages_with_certain_email(self):
+        """Test filtering messages by the email passed to reply."""
+
+        create_msg(self.user, email='test_search@example.com')
+        create_msg(self.user, content='I am waiting for your answer to the '
+                                      'mail: test_search@example.com')
+        create_msg(self.user)
+
+        params = {'search': 'test_search@example.com'}
+
+        r = self.client.get(MESSAGES_URL, params)
+
+        self.assertEqual(r.status_code, status.HTTP_200_OK)
+        self.assertEqual(len(r.data), 2)
+
     def test_filtering_messages_combine_search_filter(self):
         """
         Test filtering the list of messages by both 'search' and 'filter'
