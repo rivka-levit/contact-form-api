@@ -4,7 +4,7 @@
 
 #### Description:
 
-- Provide PostgreSQL database to store messages.
+- PostgreSQL database to store messages.
 - Django, Rest-Framework backend.
 - Automatic Spectacular forntend.
 - Dockerized app.
